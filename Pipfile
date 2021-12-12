@@ -8,6 +8,7 @@ django = "*"
 django-mysql = "*"
 django-environ = "*"
 mysqlclient = "*"
+django-jazzmin = "*"
 
 [dev-packages]
 
