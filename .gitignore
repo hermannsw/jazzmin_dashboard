@@ -1,0 +1,13 @@
+**/__pycache__/**
+.mypy_cache
+
+### OS ###
+.DS_Store
+
+### Environments ###
+env/
+.venv
+.env
+
+### IDE Settings ###
+.idea
