@@ -9,6 +9,7 @@ django-mysql = "*"
 django-environ = "*"
 mysqlclient = "*"
 django-jazzmin = "*"
+flake8 = "*"
 
 [dev-packages]
 isort = "*"
