@@ -13,7 +13,7 @@ def form_render(request):
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(email=email, password=raw_password)
             login(request, user)
-            return redirect('/admin')
+            return redirect('/home')
     else:
         form = SignupForm()
     return render(request, 'web_dashboard/signup.html', {'form': form})
