@@ -53,7 +53,7 @@ class Home:
     index_title = gettext_lazy('Site administration')
 
     # URL for the "View site" link at the top of each admin page.
-    site_url = '/'
+    site_url = 'home/'
 
     enable_nav_sidebar = True
 
@@ -69,7 +69,7 @@ class Home:
 
     final_catch_all_view = True
 
-    def __init__(self, name='admin'):
+    def __init__(self, name='home'):
         self._registry = {}  # model_class class -> admin_class instance
         self.name = name
         self._actions = {'delete_selected': actions.delete_selected}
@@ -230,7 +230,7 @@ class Home:
                 from django.contrib.auth.views import redirect_to_login
                 return redirect_to_login(
                     request.get_full_path(),
-                    reverse('admin:login', current_app=self.name)
+                    reverse('web_dashboard:login', current_app=self.name)
                 )
             return view(request, *args, **kwargs)
         if not cacheable:
@@ -256,7 +256,7 @@ class Home:
 
         # Admin-site-wide views.
         urlpatterns = [
-            path('', wrap(self.index), name='index'),
+            path('home/', wrap(self.index), name='home'),
             path('login/', self.login, name='login'),
             path('logout/', wrap(self.logout), name='logout'),
             path('password_change/', wrap(self.password_change, cacheable=True), name='password_change'),
@@ -299,7 +299,7 @@ class Home:
 
     @property
     def urls(self):
-        return self.get_urls(), 'home', self.name
+        return self.get_urls(), 'web_dashboard', self.name
 
     def each_context(self, request):
         """
@@ -410,7 +410,7 @@ class Home:
         defaults = {
             'extra_context': context,
             'authentication_form': self.login_form or AdminAuthenticationForm,
-            'template_name': self.login_template or 'admin/login.html',
+            'template_name': self.login_template or 'registration/login.html',
         }
         request.current_app = self.name
         return LoginView.as_view(**defaults)(request)
@@ -558,17 +558,17 @@ class Home:
         ], context)
 
 
-class DefaultAdminSite(LazyObject):
+class CustomizedAdminSite(LazyObject):
     def _setup(self):
-        AdminSiteClass = import_string(apps.get_app_config('admin').default_site)
-        self._wrapped = AdminSiteClass()
+        self._wrapped = Home()
 
     def __repr__(self):
         return repr(self._wrapped)
-
 
 # This global object represents the default admin site, for the common case.
 # You can provide your own AdminSite using the (Simple)AdminConfig.default_site
 # attribute. You can also instantiate AdminSite in your own code to create a
 # custom admin site.
-site = DefaultAdminSite()
+
+
+site = CustomizedAdminSite()
