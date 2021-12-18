@@ -14,7 +14,6 @@ from django.template.response import TemplateResponse
 from django.urls import NoReverseMatch, Resolver404, resolve, reverse
 from django.utils.decorators import method_decorator
 from django.utils.functional import LazyObject
-from django.utils.module_loading import import_string
 from django.utils.text import capfirst
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
@@ -62,8 +61,8 @@ class Home:
     login_form = None
     index_template = None
     app_index_template = None
-    login_template = None
-    logout_template = None
+    login_template = 'registration/login.html'
+    logout_template = 'registration/logout.html'
     password_change_template = None
     password_change_done_template = None
 
@@ -222,8 +221,8 @@ class Home:
         """
         def inner(request, *args, **kwargs):
             if not self.has_permission(request):
-                if request.path == reverse('admin:logout', current_app=self.name):
-                    index_path = reverse('admin:index', current_app=self.name)
+                if request.path == reverse('web_dashboard:logout', current_app=self.name):
+                    index_path = reverse('web_dashboard:home', current_app=self.name)
                     return HttpResponseRedirect(index_path)
                 # Inner import to prevent django.contrib.admin (app) from
                 # importing django.contrib.auth.models.User (unrelated model).
@@ -327,7 +326,7 @@ class Home:
         """
         from django.contrib.admin.forms import AdminPasswordChangeForm
         from django.contrib.auth.views import PasswordChangeView
-        url = reverse('admin:password_change_done', current_app=self.name)
+        url = reverse('web_dashboard:password_change_done', current_app=self.name)
         defaults = {
             'form_class': AdminPasswordChangeForm,
             'success_url': url,
@@ -361,11 +360,6 @@ class Home:
         return JavaScriptCatalog.as_view(packages=['django.contrib.admin'])(request)
 
     def logout(self, request, extra_context=None):
-        """
-        Log out the user for the given HttpRequest.
-
-        This should *not* assume the user is already logged in.
-        """
         from django.contrib.auth.views import LogoutView
         defaults = {
             'extra_context': {
@@ -383,12 +377,10 @@ class Home:
 
     @method_decorator(never_cache)
     def login(self, request, extra_context=None):
-        """
-        Display the login form for the given HttpRequest.
-        """
+
         if request.method == 'GET' and self.has_permission(request):
             # Already logged-in, redirect to admin index
-            index_path = reverse('admin:index', current_app=self.name)
+            index_path = reverse('web_dashboard:home', current_app=self.name)
             return HttpResponseRedirect(index_path)
 
         # Since this module gets imported in the application's root package,
@@ -404,7 +396,7 @@ class Home:
         }
         if (REDIRECT_FIELD_NAME not in request.GET and
                 REDIRECT_FIELD_NAME not in request.POST):
-            context[REDIRECT_FIELD_NAME] = reverse('admin:index', current_app=self.name)
+            context[REDIRECT_FIELD_NAME] = reverse('web_dashboard:home', current_app=self.name)
         context.update(extra_context or {})
 
         defaults = {
@@ -533,7 +525,7 @@ class Home:
 
         request.current_app = self.name
 
-        return TemplateResponse(request, self.index_template or 'admin/index.html', context)
+        return TemplateResponse(request, self.index_template or 'web_dashboard/home.html', context)
 
     def app_index(self, request, app_label, extra_context=None):
         app_dict = self._build_app_dict(request, app_label)
