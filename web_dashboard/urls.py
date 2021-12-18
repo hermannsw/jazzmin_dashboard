@@ -21,8 +21,8 @@ from web_dashboard.views import home, signup
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home.site.urls),
     path('signup/', signup.form_render, name='signup'),
+    path('', home.site.urls),
     path(r'i18n/', include('django.conf.urls.i18n')),
 ]
 

@@ -38,6 +38,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'jazzmin',
+    'theauth',
     'web_dashboard',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -101,7 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'web_dashboard.User'
+AUTH_USER_MODEL = 'theauth.User'
 AUTH_USER_EMAIL_UNIQUE = True
 
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
