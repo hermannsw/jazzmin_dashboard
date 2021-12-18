@@ -22,6 +22,8 @@ from django.views.decorators.common import no_append_slash
 from django.views.decorators.csrf import csrf_protect
 from django.views.i18n import JavaScriptCatalog
 
+from web_dashboard.forms.email_auth_form import EmailAuthenticationForm
+
 all_sites = WeakSet()
 
 
@@ -58,7 +60,7 @@ class Home:
 
     empty_value_display = '-'
 
-    login_form = None
+    login_form = EmailAuthenticationForm
     index_template = None
     app_index_template = None
     login_template = 'registration/login.html'
@@ -190,10 +192,6 @@ class Home:
         return self._actions.items()
 
     def has_permission(self, request):
-        """
-        Return True if the given HttpRequest has permission to view
-        *at least one* page in the admin site.
-        """
         return request.user.is_active
 
     def admin_view(self, view, cacheable=False):
@@ -379,15 +377,11 @@ class Home:
     def login(self, request, extra_context=None):
 
         if request.method == 'GET' and self.has_permission(request):
-            # Already logged-in, redirect to admin index
+            # Already logged-in, redirect to dashboard
             index_path = reverse('web_dashboard:home', current_app=self.name)
             return HttpResponseRedirect(index_path)
 
-        # Since this module gets imported in the application's root package,
-        # it cannot import models from other applications at the module level,
-        # and django.contrib.admin.forms eventually imports User.
-        from django.contrib.admin.forms import AdminAuthenticationForm
-        from django.contrib.auth.views import LoginView
+        from web_dashboard.views.login import LoginView
         context = {
             **self.each_context(request),
             'title': _('Log in'),
@@ -401,7 +395,7 @@ class Home:
 
         defaults = {
             'extra_context': context,
-            'authentication_form': self.login_form or AdminAuthenticationForm,
+            'authentication_form': self.login_form,
             'template_name': self.login_template or 'registration/login.html',
         }
         request.current_app = self.name
@@ -556,11 +550,6 @@ class CustomizedAdminSite(LazyObject):
 
     def __repr__(self):
         return repr(self._wrapped)
-
-# This global object represents the default admin site, for the common case.
-# You can provide your own AdminSite using the (Simple)AdminConfig.default_site
-# attribute. You can also instantiate AdminSite in your own code to create a
-# custom admin site.
 
 
 site = CustomizedAdminSite()
